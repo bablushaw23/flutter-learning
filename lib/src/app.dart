@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' show get;
+import 'package:new_app/src/model/image_model.dart';
+import 'widgets/image_list.dart';
 
 class App extends StatefulWidget {
   @override
@@ -9,23 +13,29 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> {
   int counter = 0;
+  List<ImageModel> images = [];
+  void fetchImage() async {
+    counter += 1;
+    var response =
+        await get('https://jsonplaceholder.typicode.com/photos/$counter');
+    var parsedJson = json.decode(response.body);
+    var imageModel = ImageModel.fromJSON(parsedJson);
+
+    setState(() {
+      images.add(imageModel);
+    });
+  }
 
   Widget build(context) {
     return MaterialApp(
         home: Scaffold(
       body: Center(
-        child: Text(
-          'Pressed: $counter times.',
-          style: TextStyle(fontSize: 20, fontStyle: FontStyle.italic),
-        ),
+        child: ImageList(images),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          //counter += 1;
-          setState(() {
-            counter += 1;
-          });
+          fetchImage();
         },
       ),
       appBar: AppBar(
